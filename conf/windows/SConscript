@@ -1,0 +1,22 @@
+import os
+Import('env')
+
+# Set up TMP 
+env['ENV']['TMP'] = os.environ['TMP']
+
+# MSVC version 8 and higher require a manifest
+if env['MSVC_VERSION'] >= '8.0':
+   # Add a post-build step to embed the manifest using mt.exe
+   # The number at the end of the line indicates the file type (1: EXE; 2:DLL).
+   env.Append(LINKCOM=[env['LINKCOM'], 'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;1'])
+   env.Append(SHLINKCOM=[env['SHLINKCOM'], 'mt.exe -nologo -manifest ${TARGET}.manifest -outputresource:$TARGET;2'])
+
+# Windows specific compiler flags
+env.Append(CPPDEFINES=['QCC_OS_WINDOWS',
+                       'QCC_CPU_X86',
+                       'UNICODE',
+                       '_UNICODE',
+                       'WIN32_LEAN_AND_MEAN'])
+
+env.Append(CFLAGS=['/nologo'])
+env.Append(CXXFLAGS=['/nologo'])

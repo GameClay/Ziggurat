@@ -1,0 +1,4 @@
+Import('env')
+
+# Import common Windows setttings
+env.SConscript(['../SConscript'])
