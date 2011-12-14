@@ -1,9 +1,20 @@
-import os
+import os, sys
 
 vars = Variables()
 
+# Figure out the default OS based on Python's sys.platform
+default_os = ''
+if sys.platform.startswith('darwin'):
+   default_os = 'darwin'
+elif sys.platform.startswith('linux'):
+   default_os = 'linux'
+elif sys.platform.startswith('win32'):
+   default_os = 'win7' # TODO: Use sys.winver?
+elif sys.platform.startswith('cygwin'):
+   default_os = 'winxp'
+
 # Common build variables
-vars.Add(EnumVariable('OS', 'Target OS', 'linux', allowed_values=('linux', 'win7', 'winxp', 'android', 'darwin', 'ios')))
+vars.Add(EnumVariable('OS', 'Target OS', default_os, allowed_values=('linux', 'win7', 'winxp', 'android', 'darwin', 'ios')))
 vars.Add(EnumVariable('CPU', 'Target CPU', 'x86', allowed_values=('x86', 'x86-64', 'IA64', 'arm')))
 vars.Add(EnumVariable('VARIANT', 'Build variant', 'debug', allowed_values=('debug', 'release')))
 vars.Add(EnumVariable('MSVC_VERSION', 'MSVC compiler version - Windows', '9.0', allowed_values=('9.0', '10.0')))
