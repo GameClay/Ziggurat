@@ -1,0 +1,7 @@
+Import('env')
+
+# Import common iOS setttings
+env.SConscript(['../SConscript'])
+
+# iOS ARM specific build settings
+env.Append(CPPDEFINES=['QCC_CPU_ARM'])

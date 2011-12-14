@@ -3,7 +3,7 @@ import os
 vars = Variables()
 
 # Common build variables
-vars.Add(EnumVariable('OS', 'Target OS', 'linux', allowed_values=('linux', 'win7', 'winxp', 'android', 'darwin')))
+vars.Add(EnumVariable('OS', 'Target OS', 'linux', allowed_values=('linux', 'win7', 'winxp', 'android', 'darwin', 'ios')))
 vars.Add(EnumVariable('CPU', 'Target CPU', 'x86', allowed_values=('x86', 'x86-64', 'IA64', 'arm')))
 vars.Add(EnumVariable('VARIANT', 'Build variant', 'debug', allowed_values=('debug', 'release')))
 vars.Add(EnumVariable('MSVC_VERSION', 'MSVC compiler version - Windows', '9.0', allowed_values=('9.0', '10.0')))
@@ -47,6 +47,9 @@ elif env['OS'] == 'android':
 elif env['OS'] == 'darwin':
    env['OS_GROUP'] = 'posix'
    env['OS_CONF'] = 'darwin'
+elif env['OS'] == 'ios':
+   env['OS_GROUP'] = 'posix'
+   env['OS_CONF'] = 'ios'
 else:
    print 'Unsupported OS/CPU combination'
    Exit()
