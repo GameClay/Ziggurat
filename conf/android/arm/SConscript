@@ -22,7 +22,7 @@ if '' == env.subst('$ANDROID_API_LEVEL'):
    env['ANDROID_API_LEVEL'] = '8'
 
 # Override MSVC build settings when building on windows.
-if 'win32' == env.subst('$HOST_OS'):
+if (env['HOST_OS'] == 'windows'):
    env['OBJPREFIX']      = ''
    env['OBJSUFFIX']      = '.o'
    env['SHOBJPREFIX']    = '$OBJPREFIX'
@@ -36,6 +36,10 @@ if 'win32' == env.subst('$HOST_OS'):
    env['LIBPREFIXES']    = [ '$LIBPREFIX' ]
    env['LIBSUFFIXES']    = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
    env['PREBUILT_HOST_OS'] = 'windows'
+elif (env['HOST_OS'] == 'darwin'):
+   env['PREBUILT_HOST_OS'] = 'darwin-x86'
+   env['SHLIBSUFFIX']      = '.so'
+   env['LIBSUFFIXES']      = [ '$LIBSUFFIX', '$SHLIBSUFFIX' ]
 else:
    env['PREBUILT_HOST_OS'] = 'linux-x86'
 
@@ -60,12 +64,22 @@ env.Append(CPPDEFINES=['QCC_OS_ANDROID',
                        '__ARM_ARCH_5E__',
                        '__ARM_ARCH_5TE__'])
 
-env.Append(CPPFLAGS=['-fPIC',
+env.Append(CPPFLAGS=['-fpic',
+                     '-ffunction-sections',
+                     '-funwind-tables',
+                     '-fstack-protector',
+                     '-Wno-psabi',
                      '-march=armv5te',
-                     '-mtune=xscale', # Not convinced about this, but it's in http://plausible.org/andy/agcc
+                     '-mtune=xscale',
                      '-msoft-float',
                      '-mthumb',
-                     '-fno-short-enums'])
+                     '-Os',
+                     '-fomit-frame-pointer',
+                     '-Wno-unused',
+                     '-Wa,--noexecstack'])
+
+env.Append(CXXFLAGS=['-fno-exceptions',
+                     '-fno-rtti'])
 
 # NDK version specific flags
 if ndkVersion >= 5:
@@ -75,6 +89,7 @@ if ndkVersion >= 5:
 else:
    env.Append(CPPFLAGS=['-mthumb-interwork',
                         '-fno-short-enums',
+                        '-fno-strict-aliasing',
                         '-finline-limit=64'])
 
 # Use Android provided tools
@@ -93,14 +108,9 @@ else:
 
 # Android include paths
 if ndkVersion >= 5:
-   env.Append(CPPPATH=['$ANDROID_NDK/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/include',
-                       '$ANDROID_NDK/sources/cxx-stl/system/include',
-                       '$ANDROID_SRC/external/bluetooth/bluez/include',
-                       '$ANDROID_SRC/external/openssl/include'])
+   env.Append(CPPPATH=['$ANDROID_NDK/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/include'])
 else:
-    env.Append(CPPPATH=['$ANDROID_NDK/build/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/include',
-                        '$ANDROID_SRC/external/bluetooth/bluez/include',
-                        '$ANDROID_SRC/external/openssl/include'])
+    env.Append(CPPPATH=['$ANDROID_NDK/build/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/include'])
 
 # Android library locations
 if ndkVersion >= 5:
@@ -116,8 +126,12 @@ env.Append(LIBPATH=['$ANDROID_SRC/out/target/product/$ANDROID_TARGET/system/lib'
 
 # Android link flags\
 if ndkVersion >= 5:
-   env.Append(LINKFLAGS=['-Wl,--entry=main',
+   env.Append(LINKFLAGS=['-Wl,--gc-sections',
+                         '-Wl,-z,nocopyreloc',
+                         '-Wl,--entry=main',
                          '--sysroot=$ANDROID_NDK/platforms/android-$ANDROID_API_LEVEL/arch-arm',
+                         '-Wl,--no-undefined',
+                         '-Wl,-z,noexecstack',
                          '-Wl,-rpath-link=$ANDROID_NDK/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/lib'])
 
    # SCons default SHLINKFLAGS is '$LINKFLAGS -shared'.  Since we don't
@@ -135,14 +149,19 @@ if ndkVersion >= 5:
                                   '$ANDROID_NDK/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/lib/libstdc++.so',
                                   '$ANDROID_NDK/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/lib/libm.so',
                                   '-Wl,--fix-cortex-a8',
+                                  '-Wl,--no-undefined',
+                                  '-Wl,-z,noexecstack',
                                   '-Wl,-rpath-link=$ANDROID_NDK/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/lib',
                                   stripsymbols])
 else:
    env.Append(LINKFLAGS=['-nostdlib',
                          '-Bdynamic',
                          '-Wl,--entry=main',
+                         '-Wl,--no-undefined',
                          '-Wl,-T,$ANDROID_NDK/build/prebuilt/$PREBUILT_HOST_OS/arm-eabi-4.4.0/arm-eabi/lib/ldscripts/armelf.x',
                          '-Wl,-dynamic-linker,/system/bin/linker',
+                         '-Wl,--gc-sections',
+                         '-Wl,-z,nocopyreloc',
                          '-Wl,-rpath-link=$ANDROID_NDK/build/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/lib',
                          '$ANDROID_NDK/build/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/lib/crtbegin_dynamic.o'])
 
@@ -164,5 +183,7 @@ else:
                                   '-Wl,-soname,${TARGET.file}',
                                   '-Wl,-shared,-Bsymbolic',
                                   '-Wl,--fix-cortex-a8',
+                                  '-Wl,--no-undefined',
+                                  '-Wl,-z,noexecstack',
                                   '-Wl,-rpath-link=$ANDROID_NDK/build/platforms/android-$ANDROID_API_LEVEL/arch-arm/usr/lib',
                                   stripsymbols])

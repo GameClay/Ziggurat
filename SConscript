@@ -4,14 +4,19 @@ vars = Variables()
 
 # Figure out the default OS based on Python's sys.platform
 default_os = ''
+host_os = ''
 if sys.platform.startswith('darwin'):
    default_os = 'darwin'
+   host_os = 'darwin'
 elif sys.platform.startswith('linux'):
    default_os = 'linux'
+   host_os = 'linux'
 elif sys.platform.startswith('win32'):
    default_os = 'win7' # TODO: Use sys.winver?
+   host_os = 'windows'
 elif sys.platform.startswith('cygwin'):
    default_os = 'winxp'
+   host_os = 'windows'
 
 # Common build variables
 vars.Add(EnumVariable('OS', 'Target OS', default_os, allowed_values=('linux', 'win7', 'winxp', 'android', 'darwin', 'ios')))
@@ -65,8 +70,13 @@ else:
    print 'Unsupported OS/CPU combination'
    Exit()
 
+# Host OS is the build platform
+env['HOST_OS'] = host_os
+
 if env['VARIANT'] == 'release':
    env.Append(CPPDEFINES = 'NDEBUG')
+else:
+   env.Append(CPPDEFINES = ['DEBUG', '_DEBUG'])
 
 # Read OS and CPU specific SConscript file
 Export('env')
