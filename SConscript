@@ -35,7 +35,7 @@ elif sys.platform.startswith('cygwin'):
 
 # Common build variables
 vars.Add(EnumVariable('OS', 'Target OS', default_os, allowed_values=('linux', 'win7', 'winxp', 'android', 'darwin', 'ios')))
-vars.Add(EnumVariable('CPU', 'Target CPU', 'x86', allowed_values=('x86', 'x86-64', 'IA64', 'arm')))
+vars.Add(EnumVariable('CPU', 'Target CPU', 'x86', allowed_values=('x86', 'x86-64', 'IA64', 'arm', 'armv7', 'armv6')))
 vars.Add(EnumVariable('VARIANT', 'Build variant', 'debug', allowed_values=('debug', 'release')))
 vars.Add(EnumVariable('MSVC_VERSION', 'MSVC compiler version - Windows', '9.0', allowed_values=('9.0', '10.0')))
 
@@ -60,6 +60,14 @@ if env['OS'] == 'win7' or env['OS'] == 'winxp':
       Exit()
 elif env['OS'] == 'android':
    env = Environment(variables = vars, tools = ['gnulink', 'gcc', 'g++', 'ar', 'as'], ENV={'PATH': path})
+elif env['OS'] == 'darwin':
+   if (env['CPU'].startswith('arm') or env['CPU'] == 'IA64'):
+      print 'Darwin CPU msut be x86 or x86-64'
+      Exit()
+elif env['OS'] == 'ios':
+   if (env['CPU'] == 'arm' or env['CPU'] == 'x86-64' or env['CPU'] == 'IA64'):
+      print 'iOS CPU msut be armv6 or armv7'
+      Exit()
 else:
    env = Environment(variables = vars, ENV={'PATH': path})
 

@@ -91,7 +91,8 @@ env.Append(CPPFLAGS=['-fpic',
                      '-Os',
                      '-fomit-frame-pointer',
                      '-Wno-unused',
-                     '-Wa,--noexecstack'])
+                     '-Wa,--noexecstack',
+                     '-pipe'])
 
 env.Append(CXXFLAGS=['-fno-exceptions',
                      '-fno-rtti'])

@@ -18,19 +18,19 @@ import os
 
 # iOS specific vars
 vars = Variables()
-vars.Add(EnumVariable('IOS_SDK_VERSION', ' iOS SDK Version (4.2, 4.3)',
-                      os.environ.get('IOS_SDK_VERSION'), allowed_values=('4.2', '4.3', ''), map={}, ignorecase=0))
+vars.Add(EnumVariable('IOS_SDK_VERSION', ' iOS SDK Version (4.3)',
+                      os.environ.get('IOS_SDK_VERSION'), allowed_values=('4.3', '5.0', ''), map={}, ignorecase=0))
 vars.Update(env)
 Help(vars.GenerateHelpText(env))
 
 # Verify dependencies
 if '' == env.subst('$IOS_SDK_VERSION'):
-   env['IOS_SDK_VERSION'] = '4.3'
+   env['IOS_SDK_VERSION'] = '5.0'
 
 # x86 build means iPhone Simulator
-if env['CPU'] == 'arm':
+if env['CPU'].startswith('arm'):
    env.AppendENVPath('IPHONEOS_DEPLOYMENT_TARGET', env['IOS_SDK_VERSION'])
-   env['IOS_ARCH'] = 'armv7'
+   env['IOS_ARCH'] = env['CPU']
    env['IOS_PLATFORM'] = '/Developer/Platforms/iPhoneOS.platform/Developer'
    env['IOS_PLATFORM_SDK'] = '$IOS_PLATFORM/SDKs/iPhoneOS' + env['IOS_SDK_VERSION'] + '.sdk'
 else:
@@ -50,21 +50,20 @@ env.Append(CPPFLAGS=['-arch', env['IOS_ARCH'],
                      '-isysroot', env['IOS_PLATFORM_SDK'],
                      '-miphoneos-version-min=' + env['IOS_SDK_VERSION'],
                      '-Wno-trigraphs',
-                     '-Wno-unused-value',
-                     '-Wno-unused-parameter',
-                     '-Wno-constant-conversion',
                      '-Wno-tautological-compare',
-                     '-Wno-unneeded-internal-declaration',
-                     '-Wno-shorten-64-to-32',
                      '-fpascal-strings',
                      '-fmessage-length=0',
                      '-pipe',
                      '-std=gnu99',
                      '-gdwarf-2'])
 
+env.Append(CPPFLAGS=['-x', 'objective-c',
+                     '-fobjc-abi-version=2',
+                     '-fobjc-legacy-dispatch'])
+
 env.Append(LINKFLAGS=['-arch', env['IOS_ARCH'],
                       '-isysroot', env['IOS_PLATFORM_SDK'],
-                      '-miphoneos-version-min=' + env['IOS_SDK_VERSION'])
+                      '-miphoneos-version-min=' + env['IOS_SDK_VERSION']])
 
 # iOS include paths
 env.Append(CPPPATH=['$IOS_PLATFORM_SDK/usr/include',
