@@ -44,21 +44,7 @@ build_dir = 'build/${OS}/${CPU}/${VARIANT}'
 vars.AddVariables(('OBJDIR', '', build_dir + '/obj'),
                   ('DISTDIR', '', '#' + build_dir + '/dist'))
 
-try:
-   Import('env')
-   vars.Update(env)
-except:
 env = Environment(variables = vars)
-
-# SetDefault for the desired OS/CPU defines
-env.SetDefault(ZIG_OS_ANDROID = 'ZIG_OS_ANDROID')
-env.SetDefault(ZIG_OS_DARWIN = 'ZIG_OS_DARWIN')
-env.SetDefault(ZIG_OS_IOS = 'ZIG_OS_IOS')
-env.SetDefault(ZIG_OS_WINDOWS = 'ZIG_OS_WINDOWS')
-
-env.SetDefault(ZIG_CPU_ARM = 'ZIG_CPU_ARM')
-env.SetDefault(ZIG_CPU_X86 = 'ZIG_CPU_X86')
-
 path = env['ENV']['PATH']
 
 # Recreate the environment with the correct path
@@ -86,6 +72,35 @@ else:
    env = Environment(variables = vars, ENV={'PATH': path})
 
 Help(vars.GenerateHelpText(env))
+
+# Bring in platform defines if they exist
+try:
+   Import('platform_defines')
+
+   if not ('' == platform_defines.subst('$ZIG_OS_ANDROID')):
+      env['ZIG_OS_ANDROID'] = platform_defines['ZIG_OS_ANDROID']
+   if not ('' == platform_defines.subst('$ZIG_OS_DARWIN')):
+      env['ZIG_OS_DARWIN'] = platform_defines['ZIG_OS_DARWIN']
+   if not ('' == platform_defines.subst('$ZIG_OS_IOS')):
+      env['ZIG_OS_IOS'] = platform_defines['ZIG_OS_IOS']
+   if not ('' == platform_defines.subst('$ZIG_OS_WINDOWS')):
+      env['ZIG_OS_WINDOWS'] = platform_defines['ZIG_OS_WINDOWS']
+
+   if not ('' == platform_defines.subst('$ZIG_CPU_ARM')):
+      env['ZIG_CPU_ARM'] = platform_defines['ZIG_CPU_ARM']
+   if not ('' == platform_defines.subst('$ZIG_CPU_X86')):
+      env['ZIG_CPU_X86'] = platform_defines['ZIG_CPU_X86']
+except:
+   print ''
+
+# SetDefault for the desired OS/CPU defines
+env.SetDefault(ZIG_OS_ANDROID = 'ZIG_OS_ANDROID')
+env.SetDefault(ZIG_OS_DARWIN = 'ZIG_OS_DARWIN')
+env.SetDefault(ZIG_OS_IOS = 'ZIG_OS_IOS')
+env.SetDefault(ZIG_OS_WINDOWS = 'ZIG_OS_WINDOWS')
+
+env.SetDefault(ZIG_CPU_ARM = 'ZIG_CPU_ARM')
+env.SetDefault(ZIG_CPU_X86 = 'ZIG_CPU_X86')
 
 # Validate build vars
 if env['OS'] == 'linux':
