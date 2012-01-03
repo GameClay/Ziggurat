@@ -44,7 +44,21 @@ build_dir = 'build/${OS}/${CPU}/${VARIANT}'
 vars.AddVariables(('OBJDIR', '', build_dir + '/obj'),
                   ('DISTDIR', '', '#' + build_dir + '/dist'))
 
+try:
+   Import('env')
+   vars.Update(env)
+except:
 env = Environment(variables = vars)
+
+# SetDefault for the desired OS/CPU defines
+env.SetDefault(ZIG_OS_ANDROID = 'ZIG_OS_ANDROID')
+env.SetDefault(ZIG_OS_DARWIN = 'ZIG_OS_DARWIN')
+env.SetDefault(ZIG_OS_IOS = 'ZIG_OS_IOS')
+env.SetDefault(ZIG_OS_WINDOWS = 'ZIG_OS_WINDOWS')
+
+env.SetDefault(ZIG_CPU_ARM = 'ZIG_CPU_ARM')
+env.SetDefault(ZIG_CPU_X86 = 'ZIG_CPU_X86')
+
 path = env['ENV']['PATH']
 
 # Recreate the environment with the correct path
