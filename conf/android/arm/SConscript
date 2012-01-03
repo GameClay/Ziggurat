@@ -116,12 +116,14 @@ if ndkVersion >= 5:
    env['CC'] = '$ANDROID_TOOLS/arm-linux-androideabi-gcc'
    env['CXX'] = '$ANDROID_TOOLS/arm-linux-androideabi-g++'
    env['LINK'] = '$ANDROID_TOOLS/arm-linux-androideabi-gcc'
+   env['RANLIB'] = '$ANDROID_TOOLS/arm-linux-androideabi-ranlib'
 else:
    env['ANDROID_TOOLS'] = '$ANDROID_NDK/build/prebuilt/$PREBUILT_HOST_OS/arm-eabi-4.4.0/bin'
    env['AR'] = '$ANDROID_TOOLS/arm-eabi-ar'
    env['CC'] = '$ANDROID_TOOLS/arm-eabi-gcc'
    env['CXX'] = '$ANDROID_TOOLS/arm-eabi-g++'
    env['LINK'] = '$ANDROID_TOOLS/arm-eabi-gcc'
+   env['RANLIB'] = '$ANDROID_TOOLS/arm-eabi-ranlib'
 
 # Android include paths
 if ndkVersion >= 5:
